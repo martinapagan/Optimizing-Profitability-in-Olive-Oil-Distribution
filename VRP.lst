@@ -1,0 +1,402 @@
+GAMS 48.1.0  612569ae Oct 14, 2024          WEX-WEI x86 64bit/MS Windows - 01/22/25 22:27:04 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  * Exercise section 1.3.1. book Shapiro (manufacturer)
+   2   
+   3  Set
+   4  i  output products  /i1,i2/
+   5  j  input parts      /j1*j3/
+   6  w  scenarios        /w1*w3/
+   7  ;
+   8   
+   9  Parameter
+  10  cost_input(j) euro per unit /
+  11  j1   20
+  12  j2   25
+  13  j3   22
+  14  /
+  15  selling_price(i) euro per unit
+  16  /i1   50
+  17  i2    48
+  18  /
+  19  cost_transport(i) eur unit
+  20  /i1  5
+  21  i2   4
+  22  /
+  23  value_storage(j) eur unit
+  24  /j1  8
+  25  j2   10
+  26  j3   7
+  27  /
+  28  ;
+  29   
+  30  TABLE A(i,j) inputs required per unit of output
+  31      j1      j2      j3
+  32  i1  0.20    0.50    0.30
+  33  i2  0.40    0.25    0.35
+  34  ;
+  35   
+  36  TABLE DEM(i,w) demand outputs
+  37      w1      w2      w3
+  38  i1  100     110     95
+  39  i2  87      85      93
+  40  ;
+  41   
+  42  SCALAR prob probability of scenarios;
+  43  prob=1/card(w);
+  44   
+  45   
+  46  Variable
+  47  cost objective function value
+  48  ;
+  49   
+  50  Positive Variables
+  51  x(j)    amount of inputs bought from suppliers
+  52  z(i,w)  quantity produced of each output
+  53  y(j,w)  amount of input in the storage
+  54  ;
+  55   
+  56  EQUATIONS
+  57  objectiveFunction
+  58  StorageLevel
+  59  ProductionLevel
+  60  demand
+  61  ;
+  62   
+  63  objectiveFunction.. cost =e= sum(j,cost_input(j)*x(j)) +
+  64                                sum(w, prob*(sum(i,(cost_transport(i)-selling_price(i))*z(i,w))
+  65                                             - sum(j,value_storage(j)*y(j,w))
+  66                                             )
+  67                                   );
+  68  StorageLevel(j,w)..  y(j,w) =e= x(j) - sum(i,A(i,j)*z(i,w));
+  69   
+  70  ProductionLevel(i,w)..  z(i,w) =l= DEM(i,w);
+  71   
+  72  demand(i,w)..    sum(j,A(i,j)*z(i,w)) =g= DEM(i,w);
+  73   
+  74  model exercise /all/;
+  75   
+  76  solve exercise minimizing cost using lp;
+  77   
+  78  display cost.l, z.l, x.l, y.l;
+  79   
+  80   
+  81   
+  82   
+  83   
+  84   
+  85   
+
+
+COMPILATION TIME     =        0.000 SECONDS      3 MB  48.1.0 612569ae WEX-WEI
+GAMS 48.1.0  612569ae Oct 14, 2024          WEX-WEI x86 64bit/MS Windows - 01/22/25 22:27:04 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE exercise Using LP From line 76
+
+
+---- objectiveFunction  =E=  
+
+objectiveFunction..  cost - 20*x(j1) - 25*x(j2) - 22*x(j3) + 15*z(i1,w1) + 15*z(i1,w2) + 15*z(i1,w3) + 14.6666666666667*z(i2,w1) + 14.6666666666667*z(i2,w2) + 14.6666666666667*z(i2,w3) + 2.66666666666667*y(j1,w1) + 2.66666666666667*y(j1,w2) + 2.66666666666667*y(j1,w3) + 3.33333333333333*y(j2,w1) + 3.33333333333333*y(j2,w2) + 3.33333333333333*y(j2,w3) + 2.33333333333333*y(j3,w1) + 2.33333333333333*y(j3,w2) + 2.33333333333333*y(j3,w3) =E= 0 ; (LHS = 0)
+     
+
+---- StorageLevel  =E=  
+
+StorageLevel(j1,w1)..  - x(j1) + 0.2*z(i1,w1) + 0.4*z(i2,w1) + y(j1,w1) =E= 0 ; (LHS = 0)
+     
+StorageLevel(j1,w2)..  - x(j1) + 0.2*z(i1,w2) + 0.4*z(i2,w2) + y(j1,w2) =E= 0 ; (LHS = 0)
+     
+StorageLevel(j1,w3)..  - x(j1) + 0.2*z(i1,w3) + 0.4*z(i2,w3) + y(j1,w3) =E= 0 ; (LHS = 0)
+     
+REMAINING 6 ENTRIES SKIPPED
+
+
+---- ProductionLevel  =L=  
+
+ProductionLevel(i1,w1)..  z(i1,w1) =L= 100 ; (LHS = 0)
+     
+ProductionLevel(i1,w2)..  z(i1,w2) =L= 110 ; (LHS = 0)
+     
+ProductionLevel(i1,w3)..  z(i1,w3) =L= 95 ; (LHS = 0)
+     
+REMAINING 3 ENTRIES SKIPPED
+
+
+---- demand  =G=  
+
+demand(i1,w1)..  z(i1,w1) =G= 100 ; (LHS = 0, INFES = 100 ****)
+     
+demand(i1,w2)..  z(i1,w2) =G= 110 ; (LHS = 0, INFES = 110 ****)
+     
+demand(i1,w3)..  z(i1,w3) =G= 95 ; (LHS = 0, INFES = 95 ****)
+     
+REMAINING 3 ENTRIES SKIPPED
+
+GAMS 48.1.0  612569ae Oct 14, 2024          WEX-WEI x86 64bit/MS Windows - 01/22/25 22:27:04 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE exercise Using LP From line 76
+
+
+---- cost  objective function value
+
+cost
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       objectiveFunction
+
+
+---- x  amount of inputs bought from suppliers
+
+x(j1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      -20       objectiveFunction
+       -1       StorageLevel(j1,w1)
+       -1       StorageLevel(j1,w2)
+       -1       StorageLevel(j1,w3)
+
+x(j2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      -25       objectiveFunction
+       -1       StorageLevel(j2,w1)
+       -1       StorageLevel(j2,w2)
+       -1       StorageLevel(j2,w3)
+
+x(j3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      -22       objectiveFunction
+       -1       StorageLevel(j3,w1)
+       -1       StorageLevel(j3,w2)
+       -1       StorageLevel(j3,w3)
+
+
+---- z  quantity produced of each output
+
+z(i1,w1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       15       objectiveFunction
+        0.2     StorageLevel(j1,w1)
+        0.5     StorageLevel(j2,w1)
+        0.3     StorageLevel(j3,w1)
+        1       ProductionLevel(i1,w1)
+        1       demand(i1,w1)
+
+z(i1,w2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       15       objectiveFunction
+        0.2     StorageLevel(j1,w2)
+        0.5     StorageLevel(j2,w2)
+        0.3     StorageLevel(j3,w2)
+        1       ProductionLevel(i1,w2)
+        1       demand(i1,w2)
+
+z(i1,w3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       15       objectiveFunction
+        0.2     StorageLevel(j1,w3)
+        0.5     StorageLevel(j2,w3)
+        0.3     StorageLevel(j3,w3)
+        1       ProductionLevel(i1,w3)
+        1       demand(i1,w3)
+
+REMAINING 3 ENTRIES SKIPPED
+
+---- y  amount of input in the storage
+
+y(j1,w1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        2.6667  objectiveFunction
+        1       StorageLevel(j1,w1)
+
+y(j1,w2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        2.6667  objectiveFunction
+        1       StorageLevel(j1,w2)
+
+y(j1,w3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        2.6667  objectiveFunction
+        1       StorageLevel(j1,w3)
+
+REMAINING 6 ENTRIES SKIPPED
+GAMS 48.1.0  612569ae Oct 14, 2024          WEX-WEI x86 64bit/MS Windows - 01/22/25 22:27:04 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Range Statistics    SOLVE exercise Using LP From line 76
+
+
+RANGE STATISTICS (ABSOLUTE NON-ZERO FINITE VALUES)
+
+RHS       [min, max] : [ 8.500E+01, 1.100E+02] - Zero values observed as well
+Bound     [min, max] : [        NA,        NA] - Zero values observed as well
+Matrix    [min, max] : [ 2.000E-01, 2.500E+01]
+
+GAMS 48.1.0  612569ae Oct 14, 2024          WEX-WEI x86 64bit/MS Windows - 01/22/25 22:27:04 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE exercise Using LP From line 76
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           4     SINGLE EQUATIONS           22
+BLOCKS OF VARIABLES           4     SINGLE VARIABLES           19
+NON ZERO ELEMENTS            67
+
+
+GENERATION TIME      =        0.016 SECONDS      4 MB  48.1.0 612569ae WEX-WEI
+GAMS 48.1.0  612569ae Oct 14, 2024          WEX-WEI x86 64bit/MS Windows - 01/22/25 22:27:04 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE exercise Using LP From line 76
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   exercise            OBJECTIVE  cost
+     TYPE    LP                  DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  76
+
+**** SOLVER STATUS     1 Normal Completion
+**** MODEL STATUS      1 Optimal
+**** OBJECTIVE VALUE            -4097.8500
+
+ RESOURCE USAGE, LIMIT          0.000 10000000000.000
+ ITERATION COUNT, LIMIT         0    2147483647
+*** This solver runs with a community license. No commercial use.
+--- GMO setup time: 0.00s
+--- GMO memory 0.50 Mb (peak 0.50 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.1.0 link memory 0.00 Mb (peak 0.00 Mb)
+--- Starting Cplex
+
+
+--- LP status (1): optimal.
+--- Cplex Time: 0.00sec (det. 0.02 ticks)
+
+
+Optimal solution found
+Objective:        -4097.850000
+
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU objective~          .              .              .             1.0000      
+
+---- EQU StorageLevel  
+
+             LOWER          LEVEL          UPPER         MARGINAL
+
+j1.w1          .              .              .            -2.6667      
+j1.w2          .              .              .            -2.6667      
+j1.w3          .              .              .           -14.6667      
+j2.w1          .              .              .            -3.3333      
+j2.w2          .              .              .           -18.3333      
+j2.w3          .              .              .            -3.3333      
+j3.w1          .              .              .            -2.3333      
+j3.w2          .              .              .           -17.3333      
+j3.w3          .              .              .            -2.3333      
+
+---- EQU ProductionLevel  
+
+             LOWER          LEVEL          UPPER         MARGINAL
+
+i1.w1        -INF          100.0000       100.0000       -12.1000      
+i1.w2        -INF          110.0000       110.0000        -0.1000      
+i1.w3        -INF           95.0000        95.0000        -9.7000      
+i2.w1        -INF           87.0000        87.0000       -11.9500      
+i2.w2        -INF           85.0000        85.0000        -2.9500      
+i2.w3        -INF           93.0000        93.0000        -7.1500      
+
+---- EQU demand  
+
+             LOWER          LEVEL          UPPER         MARGINAL
+
+i1.w1       100.0000       100.0000        +INF             .          
+i1.w2       110.0000       110.0000        +INF             .          
+i1.w3        95.0000        95.0000        +INF             .          
+i2.w1        87.0000        87.0000        +INF             .          
+i2.w2        85.0000        85.0000        +INF             .          
+i2.w3        93.0000        93.0000        +INF             .          
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR cost              -INF        -4097.8500        +INF             .          
+
+  cost  objective function value
+
+---- VAR x  amount of inputs bought from suppliers
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+j1          .            56.2000        +INF             .          
+j2          .            76.2500        +INF             .          
+j3          .            62.7500        +INF             .          
+
+---- VAR z  quantity produced of each output
+
+             LOWER          LEVEL          UPPER         MARGINAL
+
+i1.w1          .           100.0000        +INF             .          
+i1.w2          .           110.0000        +INF             .          
+i1.w3          .            95.0000        +INF             .          
+i2.w1          .            87.0000        +INF             .          
+i2.w2          .            85.0000        +INF             .          
+i2.w3          .            93.0000        +INF             .          
+
+---- VAR y  amount of input in the storage
+
+             LOWER          LEVEL          UPPER         MARGINAL
+
+j1.w1          .             1.4000        +INF             .          
+j1.w2          .             0.2000        +INF             .          
+j1.w3          .              .            +INF           12.0000      
+j2.w1          .             4.5000        +INF             .          
+j2.w2          .              .            +INF           15.0000      
+j2.w3          .             5.5000        +INF             .          
+j3.w1          .             2.3000        +INF             .          
+j3.w2          .              .            +INF           15.0000      
+j3.w3          .             1.7000        +INF             .          
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS 48.1.0  612569ae Oct 14, 2024          WEX-WEI x86 64bit/MS Windows - 01/22/25 22:27:04 Page 7
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----     78 VARIABLE cost.L                =    -4097.850  objective function value
+
+----     78 VARIABLE z.L  quantity produced of each output
+
+            w1          w2          w3
+
+i1     100.000     110.000      95.000
+i2      87.000      85.000      93.000
+
+
+----     78 VARIABLE x.L  amount of inputs bought from suppliers
+
+j1 56.200,    j2 76.250,    j3 62.750
+
+
+----     78 VARIABLE y.L  amount of input in the storage
+
+            w1          w2          w3
+
+j1       1.400       0.200
+j2       4.500                   5.500
+j3       2.300                   1.700
+
+
+
+EXECUTION TIME       =        0.078 SECONDS      4 MB  48.1.0 612569ae WEX-WEI
+
+
+USER: Academic User                                  G241023+0003Ac-GEN
+      m.pagan@studenti.unibs.it                               CLA102746
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\marti\OneDrive - unibs.it\Universita_Magistrale\ADSEM\SECONDO ANNO\Decision thoery\Project2\VRP.gms
+Output     C:\Users\marti\OneDrive - unibs.it\Universita_Magistrale\ADSEM\SECONDO ANNO\Decision thoery\Project2\VRP.lst
