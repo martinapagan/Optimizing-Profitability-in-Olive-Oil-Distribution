@@ -6,7 +6,7 @@ The problem addresses monthly delivery planning to 10 cities in Southern Italy, 
 
 This project was developed for the *Decision Theory and Multi-Criteria Analysis* course within the Master’s degree program in *Analytics and Data Science for Economics and Management* at the University of Brescia (A.Y. 2024/2025).
 
-## 👥 Authors
+## Authors
 * Alessia Aquilini
 * Gabriele Battagliola
 * Luigina Bertolotti
